@@ -8,7 +8,7 @@ const MenuItem = ({ id, title, description, imageName, price }) => (
     <div className="card border-0">
       <div className="row">
         <div className="col-5">
-          <img src={'/images/' + imageName} alt={title} className="item" />
+          <img src={`${process.env.PUBLIC_URL}/images/${imageName}`} alt={title} className="item" />
         </div>
         <div className="col-7 information">
           <div className="row name">{title}</div>
