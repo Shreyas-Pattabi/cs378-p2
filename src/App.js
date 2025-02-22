@@ -1,6 +1,6 @@
 import './App.css';
 import MenuItem from './components/MenuItem';
-
+import { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // This imports bootstrap css styles. You can use bootstrap or your own classes by using the className attribute in your elements.
 
 // Menu data. An array of objects where each object represents a menu item. Each menu item has an id, title, description, image name, and price.
@@ -80,6 +80,44 @@ const menuItems = [
 
 
 function App() {
+  const [itemCounts, setItemCounts] = useState(
+    menuItems.reduce((acc, item) => {
+      acc[item.id] = 0;
+      return acc;
+    }, {})
+  );
+
+  const handleIncrement = (id) => {
+    setItemCounts((prev) => ({ ...prev, [id]: prev[id] + 1 }));
+  };
+
+  const handleDecrement = (id) => {
+    setItemCounts((prev) => ({
+      ...prev, [id]: prev[id] > 0 ? prev[id] - 1 : 0}));
+  };
+
+  const totalCost = menuItems.reduce((total, item) => {
+    return total + itemCounts[item.id] * item.price;
+  }, 0);
+
+  const handleClearAll = () => {
+    setItemCounts(
+      menuItems.reduce((acc, item) => ({ ...acc, [item.id]: 0 }), {})
+    );
+  };
+
+  const handleOrder = () => {
+    const orderItems = menuItems.filter(item => itemCounts[item.id] > 0);
+    if (orderItems.length === 0) {
+      alert("No items ordered!");
+      return;
+    }
+    const orderSummary = orderItems
+      .map(item => `${itemCounts[item.id]} x ${item.title}`)
+      .join("\n");
+    alert(`Order Placed!\n${orderSummary}\n`);
+  };
+
   return (
     <div id="shell">
       <div className="header">
@@ -92,8 +130,18 @@ function App() {
       </div>
       <div className="menu">
         {menuItems.map((item, index) => (
-          <MenuItem key={index} {...item} />
+          <MenuItem key={index} {...item} count={itemCounts[item.id]} onIncrement={handleIncrement} onDecrement={handleDecrement} />
         ))}
+        <div className='summary'>
+          Total Cost: {totalCost.toFixed(2)}
+
+          
+        </div>
+        <div>
+          <button className='button' style={{ marginRight: '20px' }} onClick={() => handleOrder()}>Order</button>
+          <button className='button' onClick={() => handleClearAll()}>Clear All</button>
+        </div>
+        
       </div>
     </div>
   );
